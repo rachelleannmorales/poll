@@ -6,7 +6,7 @@ import { Paper, Typography, Button } from '@mui/material'
 import { Poll } from '@/types/types'
 import { getAuthToken } from '@/lib/auth'
 import { useEffect } from 'react'
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 const fetchPolls = async (): Promise<Poll[]> => {
@@ -15,6 +15,7 @@ const fetchPolls = async (): Promise<Poll[]> => {
 }
 
 export default function PollListPage() {
+  const router = useRouter()
   const queryClient = useQueryClient()
   
   useEffect(() => {
@@ -41,11 +42,14 @@ export default function PollListPage() {
           }
         }
       ).then(() => 
-        redirect(`polls/${pollId}`)
+        router.push(`polls/${pollId}`)
       )
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['polls'] })
+    },
+    onError: (error: any) => {
+      alert(error.response.data.message)
     }
   })
 
@@ -57,11 +61,12 @@ export default function PollListPage() {
       <Typography variant="h5" className="mb-4">
         Polls - Vote here
       </Typography>
-      <Link href={'/polls/create'}>
-          Create Poll
+      <Link href={'/polls/create'} className='link my-5 py-[10px]'>
+          + Create Poll
         </Link>
+      
       {polls.map((poll) => (
-        <div key={poll.id} className="border rounded p-4 space-y-3">
+        <div key={poll.id} className="border rounded p-4 space-y-3 mt-5">
           <Typography variant="h6">{poll.question}</Typography>
 
           {poll.options.map((opt, idx) => {
